@@ -1,0 +1,19 @@
+# Mac system files
+.DS_Store
+
+# Large genomics files
+*.bw
+*.wig
+*.bam
+*.bai
+*.fastq*
+*.fq
+*.sam
+*.gz
+*.tar
+*.zip
+
+# RStudio / R-specific files
+*.RData
+*.Rhistory
+*.Rproj.user/
