@@ -1,0 +1,27 @@
+{
+    "id": "920ABBD3",
+    "path": "~/Documents/GitHub/desktop-tutorial/scripts/scripts:01_compare_bed.R",
+    "project_path": "scripts/scripts:01_compare_bed.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1757361795553.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "32,62",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1757361967,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1757361967680,
+    "read_only": false,
+    "read_only_alternatives": []
+}
