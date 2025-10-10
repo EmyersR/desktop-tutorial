@@ -1,0 +1,3 @@
+"cell","n_features","min_len","median_len","max_len"
+"MCF7",65272,0,150,15500
+"MCF10A",70036,0,150,6050
