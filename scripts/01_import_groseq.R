@@ -1,41 +1,38 @@
-# --- packages ---
-# If needed once:
-# install.packages("BiocManager")
-# BiocManager::install(c("rtracklayer","GenomicRanges","TxDb.Hsapiens.UCSC.hg38.knownGene"))
+# 01_import_groseq.R — Import GRO-Seq BigWig files and save GRanges
 
 library(rtracklayer)
 library(GenomicRanges)
-library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(tidyverse)
 
-# --- paths to your four bigWig files ---
-mcf7_plus  <- "data/GROseq/MCF7/GSE96859_MCF7_GROseq_Untreated_PlusStrand.bw"
-mcf7_minus <- "data/GROseq/MCF7/GSE96859_MCF7_GROseq_Untreated_MinusStrand.bw"
-m10_plus   <- "data/GROseq/MCF10A/GSE96859_MCF10A_GROseq_Untreated_PlusStrand.bw"
-m10_minus  <- "data/GROseq/MCF10A/GSE96859_MCF10A_GROseq_Untreated_MinusStrand.bw"
+# ---- Define paths (BigWig) ----
+mcf7_bw   <- list.files("data/GROseq/MCF7",   pattern="\\.bw$", full.names=TRUE, ignore.case=TRUE)
+mcf10a_bw <- list.files("data/GROseq/MCF10A", pattern="\\.bw$", full.names=TRUE, ignore.case=TRUE)
 
-# --- import bigWigs ---
-bw_import <- function(f) import(f, format = "BigWig")
-mcf7_bw_plus  <- bw_import(mcf7_plus)
-mcf7_bw_minus <- bw_import(mcf7_minus)
-m10_bw_plus   <- bw_import(m10_plus)
-m10_bw_minus  <- bw_import(m10_minus)
+if (length(mcf7_bw) == 0 || length(mcf10a_bw) == 0) {
+  stop("❌ Missing BigWig files in data/GROseq/MCF7 or data/GROseq/MCF10A")
+}
 
-# --- quick QC: total signal by chromosome (writes a small CSV) ---
-sum_by_chr <- function(gr) tapply(gr$score * width(gr), seqnames(gr), sum)
-qc_mcf7 <- data.frame(
-  chr        = names(sum_by_chr(mcf7_bw_plus)),
-  mcf7_plus  = unlist(sum_by_chr(mcf7_bw_plus)),
-  mcf7_minus = unlist(sum_by_chr(mcf7_bw_minus))
-  
+# ---- Import + combine strands ----
+import_bw_pair <- function(bw_files) {
+  gr_list <- lapply(bw_files, rtracklayer::import, format = "BigWig")
+  combined <- reduce(do.call(c, gr_list))
+  combined
+}
+
+mcf7   <- import_bw_pair(mcf7_bw)
+mcf10a <- import_bw_pair(mcf10a_bw)
+
+# ---- Quick QC ----
+qc <- tibble(
+  sample       = c("MCF7","MCF10A"),
+  n_regions    = c(length(mcf7), length(mcf10a)),
+  median_width = c(median(width(mcf7)), median(width(mcf10a)))
 )
-dir.create("results", showWarnings = FALSE)
-write.csv(qc_mcf7, "results/qc_groseq_signal_by_chr_MCF7.csv", row.names = FALSE)
 
-# --- save compact R objects for faster reload later (kept locally, not pushed) ---
-saveRDS(list(plus=mcf7_bw_plus, minus=mcf7_bw_minus), "results/mcf7_bw.rds")
-saveRDS(list(plus=m10_bw_plus,  minus=m10_bw_minus),  "results/mcf10a_bw.rds")
+# ---- Save outputs ----
+dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+saveRDS(mcf7,   "data/processed/mcf7_granges.rds")
+saveRDS(mcf10a, "data/processed/mcf10a_granges.rds")
+readr::write_csv(qc, "data/processed/groseq_qc_summary.csv")
 
-# --- build promoter mask (±2 kb from TSS) for later enhancer filtering ---
-txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
-prom <- promoters(txdb, upstream = 2000, downstream = 500)
-saveRDS(prom, "results/hg38_promoters_2kb_mask.rds")
+message("✅ GRO-Seq BigWig import complete — GRanges saved to data/processed/")
