@@ -1,0 +1,13 @@
+Galaxy Export: GROseq_Alignment_EvaMyers
+
+This link provides access to the full Galaxy history used for GRO-seq alignment and analysis.
+It includes all datasets, quality control results, and processing steps conducted in Galaxy.
+
+Export Link (valid for ~24 hours after creation):
+https://galaxy-main.usegalaxy.org/api/short_term_storage/653855af-50de-451d-ab92-38108a01d7b0
+
+To regenerate the export:
+1. Open Galaxy and go to the history titled “GROseq_Alignment_EvaMyers.”
+2. Click the gear icon → “Export History to File.”
+3. Select **Compressed TGZ** and click “Generate Download Link.”
+4. Copy and replace the new link here for continued access.
